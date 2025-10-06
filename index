@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Космические Рейды</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a2a;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #game-canvas {
+            border: 2px solid #00ffff;
+            background: #000;
+            max-width: 95%;
+            max-height: 70vh;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: #00ffff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .info-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="info-panel">
+            <div>⏱️ Время: <span id="timer">15:00</span></div>
+            <div>❤️ Здоровье: <span id="health">100%</span></div>
+            <div>🎯 Урон: <span id="damage">0</span></div>
+        </div>
+        
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        
+        <div class="controls">
+            <button id="attack-btn">⚡ Атака</button>
+            <button id="shield-btn">🛡️ Щит</button>
+            <button id="boost-btn">🚀 Ускорение</button>
+        </div>
+        
+        <div style="margin-top: 10px; text-align: center;">
+            <small>🚀 Космические Рейды - WebApp версия</small>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+        
+        // Получаем данные из бота
+        const initData = tg.initDataUnsafe;
+        const user = initData.user;
+        
+        // Элементы интерфейса
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const timerElement = document.getElementById('timer');
+        const healthElement = document.getElementById('health');
+        const damageElement = document.getElementById('damage');
+        
+        // Игровые переменные
+        let gameTime = 900; // 15 минут в секундах
+        let playerHealth = 100;
+        let totalDamage = 0;
+        
+        // Простая игровая логика
+        function updateGame() {
+            // Отрисовка фона
+            ctx.fillStyle = '#000033';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Отрисовка звезд
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 50; i++) {
+                ctx.fillRect(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    2, 2
+                );
+            }
+            
+            // Отрисовка корабля игрока
+            ctx.fillStyle = '#00ffff';
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, canvas.height - 50);
+            ctx.lineTo(canvas.width/2 - 20, canvas.height - 20);
+            ctx.lineTo(canvas.width/2 + 20, canvas.height - 20);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Отрисовка врагов
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(100, 100, 30, 30);
+            ctx.fillRect(300, 150, 30, 30);
+            ctx.fillRect(500, 200, 30, 30);
+        }
+        
+        // Таймер игры
+        function updateTimer() {
+            if (gameTime > 0) {
+                gameTime--;
+                const minutes = Math.floor(gameTime / 60);
+                const seconds = gameTime % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // Обработчики кнопок
+        document.getElementById('attack-btn').addEventListener('click', function() {
+            totalDamage += Math.floor(Math.random() * 50) + 10;
+            damageElement.textContent = totalDamage;
+            
+            // Анимация атаки
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(canvas.width/2 - 5, canvas.height - 100, 10, 40);
+            
+            // Отправляем данные в бота
+            tg.sendData(JSON.stringify({
+                action: 'attack',
+                damage: totalDamage,
+                userId: user?.id
+            }));
+        });
+        
+        document.getElementById('shield-btn').addEventListener('click', function() {
+            playerHealth = Math.min(100, playerHealth + 10);
+            healthElement.textContent = playerHealth + '%';
+            
+            // Анимация щита
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height - 35, 25, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+        
+        document.getElementById('boost-btn').addEventListener('click', function() {
+            // Анимация ускорения
+            ctx.fillStyle = '#ff6600';
+            for (let i = 0; i < 5; i++) {
+                ctx.fillRect(
+                    canvas.width/2 - 15 + i * 6,
+                    canvas.height - 20,
+                    4, 20
+                );
+            }
+        });
+        
+        // Игровой цикл
+        function gameLoop() {
+            updateGame();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Запуск игры
+        gameLoop();
+        setInterval(updateTimer, 1000);
+        
+        console.log('WebApp загружен для пользователя:', user);
+    </script>
+</body>
+</html>

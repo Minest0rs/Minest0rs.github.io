@@ -1,69 +1,38 @@
 # Minest0rs.github.io
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Легкий поиск</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 10px;
-            background: #f0f0f0;
-        }
-        .search-box {
-            margin: 20px auto;
-            max-width: 300px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
-        button {
-            margin-top: 5px;
-            padding: 8px 15px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            width: 100%;
-        }
-        .engine-btn {
-            display: block;
-            margin: 5px 0;
-            padding: 5px;
-            background: #e0e0e0;
-            border: 1px solid #ccc;
-            text-decoration: none;
-            color: black;
-            text-align: center;
-        }
-    </style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Поиск для Dolfin</title>
 </head>
 <body>
-    <h2>🔍 Легкий поиск</h2>
-    
-    <div class="search-box">
-        <!-- DuckDuckGo Lite (самый легкий) -->
-        <form action="https://lite.duckduckgo.com/lite/" method="GET">
-            <input type="text" name="q" placeholder="Введите запрос..." required>
-            <button type="submit">Искать в DuckDuckGo Lite</button>
-        </form>
-        
-        <br>
-        
-        <!-- Старый Google -->
-        <form action="https://www.google.com/search" method="GET">
-            <input type="hidden" name="nfpr" value="1">
-            <input type="text" name="q" placeholder="Тот же запрос в Google">
-            <button type="submit" style="background:#4285f4">Искать в Google</button>
-        </form>
-    </div>
-    
-    <h3>Быстрый доступ:</h3>
-    <a href="https://lite.duckduckgo.com/lite/" class="engine-btn">DuckDuckGo Lite</a>
-    <a href="https://www.google.com/xhtml" class="engine-btn">Google XHTML</a>
-    <a href="https://textise.iitty" class="engine-btn">Textise (упрощает сайты)</a>
+<h1>🔍 Поиск</h1>
+
+<!-- Форма 1: DuckDuckGo HTML версия -->
+<form action="https://duckduckgo.com/html/" method="get">
+<input type="text" name="q" size="20"/><br/>
+<input type="submit" value="DuckDuckGo (HTML)"/>
+</form>
+
+<!-- Форма 2: Google без JavaScript -->
+<form action="https://www.google.com/search" method="get">
+<input type="hidden" name="nfpr" value="1"/>
+<input type="text" name="q" size="20"/><br/>
+<input type="submit" value="Google (простой)"/>
+</form>
+
+<h2>Мобильные версии:</h2>
+<ul>
+<li><a href="http://wap.mail.ru">Mail.ru WAP</a></li>
+<li><a href="http://m.wikipedia.org">Википедия Mobile</a></li>
+<li><a href="http://mobile.yandex.ru">Яндекс Mobile</a></li>
+<li><a href="http://zero.facebook.com">Facebook Zero</a></li>
+</ul>
+
+<h2>Текстовые прокси:</h2>
+<ul>
+<li><a href="http://r.jina.ai/http://google.com">Google через Jina</a></li>
+<li><a href="http://textise.iitty">Textise.io</a></li>
+</ul>
 </body>
 </html>

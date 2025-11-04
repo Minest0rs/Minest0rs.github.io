@@ -3,36 +3,47 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Поиск для Dolfin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Универсальный поиск</title>
 </head>
 <body>
-<h1>🔍 Поиск</h1>
+<h1>🔍 Универсальный поиск</h1>
 
-<!-- Форма 1: DuckDuckGo HTML версия -->
-<form action="https://duckduckgo.com/html/" method="get">
-<input type="text" name="q" size="20"/><br/>
-<input type="submit" value="DuckDuckGo (HTML)"/>
-</form>
+<p>Используйте Opera Mini для лучшей совместимости!</p>
 
-<!-- Форма 2: Google без JavaScript -->
+<!-- Основные поисковики -->
+<h2>Быстрый поиск:</h2>
 <form action="https://www.google.com/search" method="get">
-<input type="hidden" name="nfpr" value="1"/>
-<input type="text" name="q" size="20"/><br/>
-<input type="submit" value="Google (простой)"/>
+<input type="text" name="q" size="20" placeholder="Введите запрос"/>
+<input type="submit" value="Google"/>
 </form>
 
-<h2>Мобильные версии:</h2>
+<form action="https://duckduckgo.com/" method="get">
+<input type="text" name="q" size="20" placeholder="Введите запрос"/>
+<input type="submit" value="DuckDuckGo"/>
+</form>
+
+<form action="https://yandex.ru/search/" method="get">
+<input type="text" name="text" size="20" placeholder="Введите запрос"/>
+<input type="submit" value="Яндекс"/>
+</form>
+
+<!-- Облегченные версии -->
+<h2>Облегченные версии:</h2>
 <ul>
-<li><a href="http://wap.mail.ru">Mail.ru WAP</a></li>
-<li><a href="http://m.wikipedia.org">Википедия Mobile</a></li>
-<li><a href="http://mobile.yandex.ru">Яндекс Mobile</a></li>
-<li><a href="http://zero.facebook.com">Facebook Zero</a></li>
+<li><a href="https://www.google.com/xhtml">Google XHTML</a></li>
+<li><a href="https://lite.duckduckgo.com/lite/">DuckDuckGo Lite</a></li>
+<li><a href="https://textise.iitty">Textise (упрощает сайты)</a></li>
 </ul>
 
-<h2>Текстовые прокси:</h2>
+<!-- Мобильные сайты -->
+<h2>Популярные сайты:</h2>
 <ul>
-<li><a href="http://r.jina.ai/http://google.com">Google через Jina</a></li>
-<li><a href="http://textise.iitty">Textise.io</a></li>
+<li><a href="https://m.wikipedia.org">Википедия</a></li>
+<li><a href="https://m.youtube.com">YouTube Mobile</a></li>
+<li><a href="https://m.vk.com">ВКонтакте Mobile</a></li>
 </ul>
+
+<p><small>Совет: Используйте Opera Mini для загрузки сложных сайтов</small></p>
 </body>
 </html>

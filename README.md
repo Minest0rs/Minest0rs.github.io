@@ -43,13 +43,16 @@
 </head>
 <body>
     <h2>🔍 Легкий поиск</h2>
+    
     <div class="search-box">
         <!-- DuckDuckGo Lite (самый легкий) -->
         <form action="https://lite.duckduckgo.com/lite/" method="GET">
             <input type="text" name="q" placeholder="Введите запрос..." required>
             <button type="submit">Искать в DuckDuckGo Lite</button>
         </form>
+        
         <br>
+        
         <!-- Старый Google -->
         <form action="https://www.google.com/search" method="GET">
             <input type="hidden" name="nfpr" value="1">
@@ -57,6 +60,7 @@
             <button type="submit" style="background:#4285f4">Искать в Google</button>
         </form>
     </div>
+    
     <h3>Быстрый доступ:</h3>
     <a href="https://lite.duckduckgo.com/lite/" class="engine-btn">DuckDuckGo Lite</a>
     <a href="https://www.google.com/xhtml" class="engine-btn">Google XHTML</a>

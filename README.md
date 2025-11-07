@@ -300,13 +300,3 @@
             if (localStream) localStream.getTracks().forEach(track => track.stop());
         });
     </script>
-</body>
-</html><li><a href="http://m.wikipedia.org">Википедия HTTP</a></li>
-<li><a href="http://mobile.yandex.ru">Яндекс Mobile</a></li>
-<li><a href="http://textise.iitty">Textise HTTP</a></li>
-</ul>
-
-<h2>Новости:</h2>
-<li><a href="http://wap.rambler.ru">Rambler WAP</a></li>
-<li><a href="http://m.lenta.ru">Lenta.ru Mobile</a></li>
-

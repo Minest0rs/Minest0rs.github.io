@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -308,9 +307,6 @@
 </ul>
 
 <h2>Новости:</h2>
-<ul>
 <li><a href="http://wap.rambler.ru">Rambler WAP</a></li>
 <li><a href="http://m.lenta.ru">Lenta.ru Mobile</a></li>
-</ul>
-</body>
-</html>
+

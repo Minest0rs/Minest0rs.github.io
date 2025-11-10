@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 LM Studio Model Download Accelerator</title>
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #1a1a1a;
+            --accent: #00ff88;
+            --danger: #ff4444;
+            --warning: #ffaa00;
+            --text: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--primary);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--secondary), #000);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid var(--accent);
+            text-align: center;
+        }
+        
+        .control-panel {
+            background: var(--secondary);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .url-input {
+            padding: 15px;
+            background: #000;
+            border: 1px solid var(--accent);
+            color: var(--text);
+            font-size: 16px;
+            border-radius: 8px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            background: var(--accent);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #00cc66;
+            transform: translateY(-2px);
+        }
+        
+        .download-item {
+            background: var(--secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #333;
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00cc66);
+            transition: width 0.3s;
+            position: relative;
+        }
+        
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #000;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .speed-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: #000;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .log-container {
+            background: #000;
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            border: 1px solid #333;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .success { color: var(--accent); }
+        .error { color: var(--danger); }
+        .warning { color: var(--warning); }
+        .info { color: #888; }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .preset-btn {
+            padding: 12px;
+            background: #333;
+            border: 1px solid #555;
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .preset-btn:hover {
+            background: #444;
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 LM Studio Model Download Accelerator</h1>
+            <p>Специально для скачивания больших моделей (GGUF, GPTQ, Safetensors)</p>
+        </div>
+        
+        <div class="control-panel">
+            <input type="text" class="url-input" id="urlInput" 
+                   placeholder="Вставьте прямую ссылку на модель .gguf или другой файл">
+            
+            <div class="preset-buttons">
+                <div class="preset-btn" onclick="loadPreset('huggingface')">🤗 Hugging Face Model</div>
+                <div class="preset-btn" onclick="loadPreset('civitai')">🎨 CivitAI Model</div>
+                <div class="preset-btn" onclick="loadPreset('github')">💾 GitHub Release</div>
+                <div class="preset-btn" onclick="loadPreset('direct')">🔗 Прямая ссылка</div>
+            </div>
+            
+            <div>
+                <button class="btn" onclick="startDownload()">⚡ Начать скачивание</button>
+                <button class="btn" onclick="pauseDownload()">⏸️ Пауза</button>
+                <button class="btn" onclick="resumeDownload()">▶️ Продолжить</button>
+                <button class="btn" onclick="testSpeed()">📊 Тест скорости</button>
+            </div>
+        </div>
+        
+        <div id="downloadsList">
+            <!-- Активные загрузки появятся здесь -->
+        </div>
+        
+        <div class="log-container" id="logContainer">
+            <div class="log-entry info">Готов к скачиванию моделей LM Studio</div>
+        </div>
+    </div>
+
+    <script>
+        class ModelDownloader {
+            constructor() {
+                this.activeDownloads = new Map();
+                this.downloadQueue = [];
+                this.isPaused = false;
+                
+                // Специальные прокси для больших файлов
+                this.highSpeedProxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url=',
+                    'https://cors-anywhere.herokuapp.com/',
+                    'https://proxy.cors.sh/'
+                ];
+                
+                this.currentProxyIndex = 0;
+                this.chunkSize = 10 * 1024 * 1024; // 10MB chunks
+                
+                this.init();
+            }
+
+            init() {
+                this.log('🚀 Model Downloader инициализирован', 'info');
+                this.log('💡 Советы: Используйте прямые ссылки для максимальной скорости', 'info');
+            }
+
+            async startDownload(url, filename = null) {
+                if (this.isPaused) {
+                    this.log('⚠️ Сначала возобновите загрузки', 'warning');
+                    return;
+                }
+
+                const downloadId = 'model_' + Date.now();
+                
+                const downloadInfo = {
+                    id: downloadId,
+                    url: url,
+                    filename: filename || this.extractFilename(url),
+                    startTime: Date.now(),
+                    bytesDownloaded: 0,
+                    totalBytes: 0,
+                    speed: 0,
+                    progress: 0,
+                    chunks: [],
+                    controller: new AbortController(),
+                    status: 'downloading'
+                };
+
+                this.activeDownloads.set(downloadId, downloadInfo);
+                this.updateUI();
+
+                try {
+                    this.log(`📥 Начинаю загрузку: ${downloadInfo.filename}`, 'info');
+                    
+                    // Получаем информацию о файле
+                    const fileInfo = await this.getFileInfo(url);
+                    downloadInfo.totalBytes = fileInfo.size;
+                    
+                    this.log(`📊 Размер файла: ${this.formatBytes(fileInfo.size)}`, 'info');
+                    
+                    // Для больших файлов используем чанковое скачивание
+                    if (fileInfo.size > this.chunkSize) {
+                        await this.downloadInChunks(downloadId);
+                    } else {
+                        await this.downloadDirect(downloadId);
+                    }
+                    
+                    downloadInfo.status = 'completed';
+                    this.log(`✅ Загрузка завершена: ${downloadInfo.filename}`, 'success');
+                    
+                } catch (error) {
+                    downloadInfo.status = 'error';
+                    downloadInfo.error = error.message;
+                    this.log(`❌ Ошибка: ${error.message}`, 'error');
+                }
+
+                this.updateUI();
+            }
+
+            async getFileInfo(url) {
+                const proxyUrl = this.getCurrentProxy() + encodeURIComponent(url);
+                
+                const response = await fetch(proxyUrl, {
+                    method: 'HEAD',
+                    signal: AbortSignal.timeout(10000)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Не удалось получить информацию о файле: ${response.status}`);
+                }
+
+                const size = parseInt(response.headers.get('content-length')) || 0;
+                const supportsRanges = response.headers.get('accept-ranges') === 'bytes';
+
+                return { size, supportsRanges };
+            }
+
+            async downloadInChunks(downloadId) {
+                const downloadInfo = this.activeDownloads.get(downloadId);
+                const totalSize = downloadInfo.totalBytes;
+                const chunkCount = Math.ceil(totalSize / this.chunkSize);
+                
+                this.log(`🔀 Разбиваю на ${chunkCount} частей для ускорения`, 'info');
+
+                const chunkPromises = [];
+                
+                for (let i = 0; i < chunkCount; i++) {
+                    const start = i * this.chunkSize;
+                    const end = Math.min(start + this.chunkSize - 1, totalSize - 1);
+                    
+                    chunkPromises.push(this.downloadChunk(downloadId, start, end, i));
+                }
+
+                // Ограничиваем одновременные загрузки до 4
+                const parallelLimit = 4;
+                for (let i = 0; i < chunkPromises.length; i += parallelLimit) {
+                    const chunkBatch = chunkPromises.slice(i, i + parallelLimit);
+                    await Promise.all(chunkBatch);
+                    
+                    if (this.isPaused) {
+                        throw new Error('Загрузка приостановлена');
+                    }
+                }
+
+                // Собираем файл
+                await this.assembleFile(downloadId);
+            }
+
+            async downloadChunk(downloadId, start, end, chunkIndex) {
+                const downloadInfo = this.activeDownloads.get(downloadId);
+                const proxyUrl = this.getCurrentProxy() + encodeURIComponent(downloadInfo.url);
+                
+                try {
+                    const response = await fetch(proxyUrl, {
+                        headers: {
+                            'Range': `bytes=${start}-${end}`
+                        },
+                        signal: downloadInfo.controller.signal
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка чанка ${chunkIndex}: ${response.status}`);
+                    }
+
+                    const buffer = await response.arrayBuffer();
+                    
+                    downloadInfo.chunks[chunkIndex] = {
+                        data: buffer,
+                        start: start,
+                        end: end
+                    };
+
+                    downloadInfo.bytesDownloaded += buffer.byteLength;
+                    downloadInfo.speed = this.calculateSpeed(downloadInfo);
+                    downloadInfo.progress = (downloadInfo.bytesDownloaded / downloadInfo.totalBytes) * 100;
+
+                    this.updateUI();
+
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        this.log(`⚠️ Повторяю чанк ${chunkIndex}...`, 'warning');
+                        // Рекурсивно повторяем неудачный чанк
+                        return this.downloadChunk(downloadId, start, end, chunkIndex);
+                    }
+                    throw error;
+                }
+            }
+
+            async downloadDirect(downloadId) {
+                const downloadInfo = this.activeDownloads.get(downloadId);
+                const proxyUrl = this.getCurrentProxy() + encodeURIComponent(downloadInfo.url);
+                
+                const response = await fetch(proxyUrl, {
+                    signal: downloadInfo.controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка загрузки: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const chunks = [];
+                let receivedLength = 0;
+
+                while (true) {
+                    if (this.isPaused) {
+                        reader.cancel();
+                        throw new Error('Загрузка приостановлена');
+                    }
+
+                    const { done, value } = await reader.read();
+
+                    if (done) break;
+
+                    chunks.push(value);
+                    receivedLength += value.length;
+                    
+                    downloadInfo.bytesDownloaded = receivedLength;
+                    downloadInfo.speed = this.calculateSpeed(downloadInfo);
+                    downloadInfo.progress = (receivedLength / downloadInfo.totalBytes) * 100;
+
+                    this.updateUI();
+                }
+
+                const blob = new Blob(chunks);
+                this.saveFile(blob, downloadInfo.filename);
+            }
+
+            async assembleFile(downloadId) {
+                const downloadInfo = this.activeDownloads.get(downloadId);
+                
+                // Сортируем чанки по порядку
+                const sortedChunks = downloadInfo.chunks
+                    .filter(chunk => chunk)
+                    .sort((a, b) => a.start - b.start);
+
+                const totalSize = sortedChunks.reduce((sum, chunk) => sum + chunk.data.byteLength, 0);
+                const combinedBuffer = new Uint8Array(totalSize);
+
+                let offset = 0;
+                for (const chunk of sortedChunks) {
+                    combinedBuffer.set(new Uint8Array(chunk.data), offset);
+                    offset += chunk.data.byteLength;
+                }
+
+                const blob = new Blob([combinedBuffer]);
+                this.saveFile(blob, downloadInfo.filename);
+                
+                this.log(`🔧 Файл собран из ${sortedChunks.length} частей`, 'success');
+            }
+
+            saveFile(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            pauseDownload() {
+                this.isPaused = true;
+                this.activeDownloads.forEach(download => {
+                    if (download.status === 'downloading') {
+                        download.controller.abort();
+                        download.status = 'paused';
+                    }
+                });
+                this.log('⏸️ Все загрузки приостановлены', 'warning');
+                this.updateUI();
+            }
+
+            resumeDownload() {
+                this.isPaused = false;
+                this.activeDownloads.forEach(download => {
+                    if (download.status === 'paused' && download.progress < 100) {
+                        download.status = 'downloading';
+                        download.controller = new AbortController();
+                        this.retryDownload(download.id);
+                    }
+                });
+                this.log('▶️ Загрузки возобновлены', 'success');
+                this.updateUI();
+            }
+
+            async retryDownload(downloadId) {
+                const downloadInfo = this.activeDownloads.get(downloadId);
+                try {
+                    await this.downloadInChunks(downloadId);
+                } catch (error) {
+                    this.log(`❌ Ошибка при возобновлении: ${error.message}`, 'error');
+                }
+            }
+
+            getCurrentProxy() {
+                return this.highSpeedProxies[this.currentProxyIndex];
+            }
+
+            switchProxy() {
+                this.currentProxyIndex = (this.currentProxyIndex + 1) % this.highSpeedProxies.length;
+                this.log(`🔄 Переключился на прокси: ${this.getCurrentProxy()}`, 'info');
+            }
+
+            calculateSpeed(downloadInfo) {
+                const elapsed = (Date.now() - downloadInfo.startTime) / 1000;
+                return elapsed > 0 ? downloadInfo.bytesDownloaded / elapsed / 1024 / 1024 : 0;
+            }
+
+            extractFilename(url) {
+                try {
+                    const urlObj = new URL(url);
+                    const pathname = urlObj.pathname;
+                    let filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+                    
+                    // Если имя файла не найдено, создаем по умолчанию
+                    if (!filename || filename === pathname) {
+                        filename = `model_${Date.now()}.gguf`;
+                    }
+                    
+                    return filename;
+                } catch {
+                    return `model_${Date.now()}.gguf`;
+                }
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            formatTime(seconds) {
+                if (seconds === 0 || !isFinite(seconds)) return '--';
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = Math.floor(seconds % 60);
+                return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
+            }
+
+            updateUI() {
+                const container = document.getElementById('downloadsList');
+                
+                if (this.activeDownloads.size === 0) {
+                    container.innerHTML = `
+                        <div class="download-item">
+                            <h3>📥 Активные загрузки</h3>
+                            <div style="text-align: center; padding: 40px; color: #888;">
+                                Нет активных загрузок
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="download-item"><h3>📥 Активные загрузки</h3>';
+                
+                for (const [id, download] of this.activeDownloads) {
+                    const remainingBytes = download.totalBytes - download.bytesDownloaded;
+                    const eta = download.speed > 0 ? remainingBytes / download.speed / 1024 / 1024 : 0;
+                    
+                          
+        <input type="text" id="myPeerId" readonly placeholder="Ваш ID появится здесь">
+        
+        <div>
+            <button onclick="connectToPeer()" class="secondary">Подключиться</button>
+            <button onclick="startCall()" id="callBtn" disabled>📞 Начать звонок</button>
+            <button onclick="endCall()" id="endBtn" class="danger" disabled>📵 Завершить</button>
+            <button onclick="copyMyId()" style="background: #FF9800;">📋 Копировать мой ID</button>
+        </div>
+
+        <div id="status" class="status">
+            Нажмите "Включить камеру и микрофон"
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script>
+        let peer;
+        let localStream;
+        let currentCall;
+
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startBtn = document.getElementById('startBtn');
+        const callBtn = document.getElementById('callBtn');
+        const endBtn = document.getElementById('endBtn');
+        const statusDiv = document.getElementById('status');
+        const myPeerIdInput = document.getElementById('myPeerId');
+        const peerIdInput = document.getElementById('peerIdInput');
+
+        async function startCamera() {
+            try {
+                statusDiv.innerHTML = "⌛ Запрос разрешений...";
+                
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    },
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+
+                localVideo.srcObject = localStream;
+                statusDiv.innerHTML = "✅ Камера и микрофон включены!";
+                startBtn.disabled = true;
+                startBtn.textContent = "✅ Камера включена";
+                callBtn.disabled = false;
+
+                initializePeer();
+
+            } catch (error) {
+                console.error("Ошибка:", error);
+                let errorMsg = "❌ Ошибка: ";
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMsg += "Вы отказали в доступе. Обновите страницу и попробуйте снова.";
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg += "Камера не найдена.";
+                } else {
+                    errorMsg += error.message;
+                }
+                
+                statusDiv.innerHTML = errorMsg;
+            }
+        }
+
+        function initializePeer() {
+            const peerId = generateRandomId();
+            
+            peer = new Peer(peerId, {
+                host: '0.peerjs.com',
+                port: 443,
+                path: '/'
+            });
+
+            peer.on('open', (id) => {
+                myPeerIdInput.value = id;
+                statusDiv.innerHTML = "✅ Готов к звонку! Ваш ID: " + id;
+            });
+
+            peer.on('call', (call) => {
+                statusDiv.innerHTML = "📞 Входящий звонок...";
+                call.answer(localStream);
+                handleCall(call);
+            });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS ошибка:", err);
+                statusDiv.innerHTML = "❌ Ошибка: " + err.type;
+            });
+        }
+
+        function generateRandomId() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+
+        function connectToPeer() {
+            const peerId = peerIdInput.value.trim();
+            if (!peerId) {
+                alert("Введите ID собеседника");
+                return;
+            }
+            
+            const conn = peer.connect(peerId);
+            conn.on('open', () => {
+                statusDiv.innerHTML = "✅ Подключено к " + peerId;
+            });
+        }
+
+        function startCall() {
+            const peerId = peerIdInput.value.trim();
+            if (!peerId) {
+                alert("Введите ID собеседника");
+                return;
+            }
+
+            statusDiv.innerHTML = "⌛ Установка соединения...";
+            
+            const call = peer.call(peerId, localStream);
+            handleCall(call);
+        }
+
+        function handleCall(call) {
+            currentCall = call;
+            
+            call.on('stream', (remoteStream) => {
+                remoteVideo.srcObject = remoteStream;
+                statusDiv.innerHTML = "✅ Звонок активен!";
+                callBtn.disabled = true;
+                endBtn.disabled = false;
+            });
+
+            call.on('close', () => {
+                endCall();
+            });
+
+            call.on('error', (err) => {
+                console.error("Ошибка звонка:", err);
+                statusDiv.innerHTML = "❌ Ошибка звонка";
+                endCall();
+            });
+        }
+
+        function endCall() {
+            if (currentCall) {
+                currentCall.close();
+                currentCall = null;
+            }
+            
+            if (remoteVideo.srcObject) {
+                remoteVideo.srcObject = null;
+            }
+            
+            statusDiv.innerHTML = "❌ Звонок завершен";
+            callBtn.disabled = false;
+            endBtn.disabled = true;
+        }
+
+        function copyMyId() {
+            myPeerIdInput.select();
+            document.execCommand('copy');
+            alert("✅ ID скопирован!");
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (currentCall) currentCall.close();
+            if (peer) peer.destroy();
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
+        });
+    </script>

@@ -3,232 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Простой Загрузчик Файлов</title>
+    <title>Максимально продвинутый 3D-редактор (в стиле Blender)</title>
     <style>
         body {
-            background: #0a0a0a;
-            color: #00ff88;
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 2px solid #00ff88;
-            border-radius: 10px;
-        }
-        .input-group {
-            margin: 20px 0;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            background: #000;
-            border: 1px solid #00ff88;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        button {
-            background: #00ff88;
-            color: black;
-            border: none;
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background: #00cc66;
-        }
-        .log {
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 20px;
-            height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        .progress {
-            width: 100%;
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
-            margin: 10px 0;
             overflow: hidden;
+            background-color: #2c2c2c; /* Тёмный фон как в Blender */
+            color: #e6e6e6; /* Светлый текст */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .progress-bar {
-            height: 100%;
-            background: #00ff88;
-            width: 0%;
-            transition: width 0.3s;
+        canvas {
+            display: block;
+        }
+        #topbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-color: #1e1e1e;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            z-index: 10;
+        }
+        #topbar button {
+            background: none;
+            border: none;
+            color: #e6e6e6;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #controls {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            background: #252526; /* Тёмная панель */
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            width: 220px;
+            border: 1px solid #3c3c3c;
+        }
+        #controls h3 {
+            color: #bbbbbb;
+            font-size: 14px;
+            margin: 10px 0 5px;
+            border-bottom: 1px solid #3c3c3c;
+            padding-bottom: 5px;
+        }
+        #controls button {
+            background: #3c3c3c;
+            border: none;
+            color: #e6e6e6;
+            padding: 8px;
+            margin: 5px 0;
+            display: block;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        #controls button:hover {
+            background: #4c4c4c;
+        }
+        #outliner {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            background: #252526;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            width: 200px;
+            border: 1px solid #3c3c3c;
+        }
+        #outliner h3 {
+            color: #bbbbbb;
+            font-size: 14px;
+            margin: 0 0 5px;
+        }
+        #outliner ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #outliner li {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #3c3c3c;
+        }
+        #outliner li:hover {
+            background: #3c3c3c;
+        }
+        #statusbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background-color: #1e1e1e;
+            color: #bbbbbb;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            z-index: 10;
+        }
+        #viewport {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 55px);
+        }
+        .dg.ac { /* Стиль для dat.GUI */
+            z-index: 999 !important;
+        }
+        .dg.main {
+            position: absolute;
+            top: 40px;
+            right: 230px; /* Рядом с outliner */
+            background: #252526 !important;
+            color: #e6e6e6 !important;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .dg .title {
+            background: #3c3c3c !important;
+            color: #e6e6e6 !important;
+        }
+        .dg .cr.string input[type=text], .dg .cr.number input[type=text] {
+            background: #3c3c3c !important;
+            color: #e6e6e6 !important;
+            border: none;
+        }
+        .dg .c .slider {
+            background: #3c3c3c !important;
+        }
+        .dg .c .slider-fg {
+            background: #5c5c5c !important;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/controls/TrackballControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/loaders/RGBELoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/pmrem/PMREMGenerator.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/SAOPass.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/postprocessing/TAARenderPass.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/modifiers/SubdivisionModifier.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/modifiers/SimplifyModifier.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/geometries/TextGeometry.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/geometries/TeapotGeometry.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/chevrotain.module.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/draco/draco_decoder.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/fflate.module.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/inflate.module.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/rhino3dm/rhino3dm.module.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/ktx-parse.module.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/libs/basis/basis_transcoder.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/webxr/XRControllerModelFactory.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/webxr/XREstimatedLight.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/addons/three-mesh-bvh.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/addons/three-bvh-csg.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/exporters/OBJExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/exporters/STLExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r169/examples/js/exporters/PLYExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://unpkg.com/three@0.169.0/examples/jsm/libs/troika-three-text.umd.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Простой Загрузчик Файлов</h1>
-            <p>Вставьте ссылку на файл и нажмите "Скачать"</p>
-        </div>
-
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="https://example.com/file.zip">
-            <div>
-                <button onclick="startDownload()">📥 Скачать файл</button>
-                <button onclick="testButton()">🧪 Тест кнопки</button>
-                <button onclick="clearLog()">🗑️ Очистить лог</button>
-            </div>
-        </div>
-
-        <div class="progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <div class="log" id="log"></div>
+    <div id="topbar">
+        <button>File</button>
+        <button>Edit</button>
+        <button>Render</button>
+        <button>Window</button>
+        <button>Help</button>
+    </div>
+    <div id="controls">
+        <h3>Объекты</h3>
+        <button id="addCube">Добавить куб</button>
+        <button id="addSphere">Добавить сферу</button>
+        <button id="addCylinder">Добавить цилиндр</button>
+        <button id="addCone">Добавить конус</button>
+        <button id="addTorus">Добавить тор</button>
+        <button id="addPlane">Добавить плоскость</button>
+        <button id="addText">Добавить текст</button>
+        <button id="addTeapot">Добавить чайник</button>
+        <h3>Свет</h3>
+        <button id="addPointLight">Добавить точечный свет</button>
+        <button id="addDirectionalLight">Добавить направленный свет</button>
+        <button id="addSpotLight">Добавить прожектор</button>
+        <button id="addRectAreaLight">Добавить прямоугольный свет</button>
+        <h3>Редактирование</h3>
+        <button id="toggleWireframe">Переключить каркас</button>
+        <button id="deleteSelected">Удалить выбранный объект</button>
+        <button id="duplicateSelected">Дублировать выбранный объект</button>
+        <button id="applySubdivision">Применить подразделение</button>
+        <button id="applySimplify">Применить упрощение</button>
+        <button id="booleanUnion">Boolean: Объединение</button>
+        <button id="booleanSubtract">Boolean: Вычитание</button>
+        <button id="booleanIntersect">Boolean: Пересечение</button>
+        <button id="applyTexture">Применить текстуру</button>
+        <input type="file" id="textureFile" style="display: none;" accept="image/*">
+        <h3>Анимация</h3>
+        <button id="startAnimation">Запустить анимацию (вращение)</button>
+        <button id="stopAnimation">Остановить анимацию</button>
+        <button id="addGSAPTween">Добавить tween-анимацию (GSAP)</button>
+        <h3>Частицы</h3>
+        <button id="addParticles">Добавить систему частиц</button>
+        <h3>Камера и Вид</h3>
+        <button id="switchCamera">Переключить камеру (Persp/Ortho)</button>
+        <button id="toggleFog">Переключить туман</button>
+        <button id="enterVR">Войти в VR</button>
+        <h3>Рендеринг</h3>
+        <button id="togglePostProcessing">Переключить пост-обработку</button>
+        <button id="renderScene">Рендерить сцену (PNG, HD)</button>
+        <h3>Импорт/Экспорт</h3>
+        <button id="loadGLTF">Загрузить GLTF</button>
+        <input type="file" id="gltfFile" style="display: none;" accept=".gltf,.glb">
+        <button id="loadOBJ">Загрузить OBJ</button>
+        <input type="file" id="objFile" style="display: none;" accept=".obj">
+        <button id="loadFBX">Загрузить FBX</button>
+        <input type="file" id="fbxFile" style="display: none;" accept=".fbx">
+        <button id="exportJSON">Экспорт JSON</button>
+        <button id="exportGLTF">Экспорт GLTF</button>
+        <button id="exportOBJ">Экспорт OBJ</button>
+        <button id="exportSTL">Экспорт STL</button>
+        <button id="exportPLY">Экспорт PLY</button>
+        <input type="file" id="importFile" style="display: none;" accept=".json,.gltf,.glb">
+        <button id="importScene">Импорт сцены</button>
+        <h3>Другое</h3>
+        <button id="undo">Отменить (Undo)</button>
+        <button id="redo">Повторить (Redo)</button>
+        <button id="resetCamera">Сбросить камеру</button>
+        <button id="saveLocal">Сохранить в LocalStorage</button>
+        <button id="loadLocal">Загрузить из LocalStorage</button>
+        <button id="addAudio">Добавить звук</button>
+        <input type="file" id="audioFile" style="display: none;" accept="audio/*">
+    </div>
+    <div id="outliner">
+        <h3>Outliner</h3>
+        <ul id="objectList"></ul>
+    </div>
+    <div id="statusbar">
+        <span id="status">Объектов: 0 | Версия: 1.0 | FPS: 60</span>
     </div>
 
     <script>
-        // Простой логгер
-        function log(message, type = 'info') {
-            const logElement = document.getElementById('log');
-            const timestamp = new Date().toLocaleTimeString();
-            const color = type === 'error' ? '#ff4444' : 
-                         type === 'success' ? '#00ff88' : '#ffffff';
-            
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `<span style="color: ${color}">[${timestamp}] ${message}</span>`;
-            logElement.appendChild(logEntry);
-            logElement.scrollTop = logElement.scrollHeight;
-            
-            console.log(message);
-        }
+        // Настройка сцены
+        const scene = new THREE.Scene();
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.physicallyCorrectLights = true;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        renderer.xr.enabled = true;
+        document.body.appendChild(renderer.domElement);
 
-        // Тестовая функция для проверки кнопок
-        function testButton() {
-            log('✅ Кнопка работает! JavaScript активен', 'success');
-            updateProgress(50);
-        }
+        // Пост-обработка
+        const composer = new THREE.EffectComposer(renderer);
+        const renderPass = new THREE.RenderPass(scene, camera);
+        composer.addPass(renderPass);
 
-        function clearLog() {
-            document.getElementById('log').innerHTML = '';
-            updateProgress(0);
-            log('Лог очищен', 'info');
-        }
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.21;
+        bloomPass.strength = 1.2;
+        bloomPass.radius = 0.55;
+        composer.addPass(bloomPass);
 
-        function updateProgress(percent) {
-            const progressBar = document.getElementById('progressBar');
-            if (progressBar) {
-                progressBar.style.width = percent + '%';
+        const saoPass = new THREE.SAOPass(scene, camera, false, true);
+        saoPass.params.saoBias = 0.5;
+        saoPass.params.saoIntensity = 0.1;
+        saoPass.params.saoScale = 10;
+        saoPass.params.saoKernelRadius = 100;
+        saoPass.params.saoMinResolution = 0;
+        saoPass.params.saoBlur = true;
+        composer.addPass(saoPass);
+
+        const taaRenderPass = new THREE.TAARenderPass(scene, camera);
+        composer.addPass(taaRenderPass);
+
+        let postProcessingEnabled = true;
+
+        // Управление
+        const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+        orbitControls.enableDamping = true;
+        orbitControls.dampingFactor = 0.25;
+
+        const transformControls = new THREE.TransformControls(camera, renderer.domElement);
+        scene.add(transformControls);
+        transformControls.addEventListener('dragging-changed', (event) => {
+            orbitControls.enabled = !event.value;
+        });
+
+        // HDR Environment
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        new THREE.RGBELoader()
+            .setPath('https://threejs.org/examples/textures/equirectangular/')
+            .load('venice_sunset_1k.hdr', (texture) => {
+                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                scene.background = envMap;
+                scene.environment = envMap;
+                texture.dispose();
+                pmremGenerator.dispose();
+            });
+
+        const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+        scene.add(hemisphereLight);
+
+        // Сетка и оси
+        const gridHelper = new THREE.GridHelper(10, 10);
+        scene.add(gridHelper);
+        const axesHelper = new THREE.AxesHelper(5);
+        scene.add(axesHelper);
+
+        camera.position.z = 5;
+
+        // GUI и выбор
+        const gui = new dat.GUI();
+        let selectedObject = null;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        // История
+        let history = [];
+        let historyIndex = -1;
+        function saveHistory() {
+            const sceneJson = new THREE.ObjectExporter().parse(scene);
+            history = history.slice(0, historyIndex + 1);
+            history.push(sceneJson);
+            historyIndex++;
+            if (history.length > 20) {
+                history.shift();
+                historyIndex--;
             }
         }
 
-        // Основная функция скачивания
-        async function startDownload() {
-            const urlInput = document.getElementById('urlInput');
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                log('❌ Введите URL для скачивания', 'error');
-                return;
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                loadSceneFromJson(history[historyIndex]);
             }
+        }
 
-            log(`📥 Начинаю загрузку: ${url}`, 'info');
-            updateProgress(10);
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                loadSceneFromJson(history[historyIndex]);
+            }
+        }
 
-            try {
-                // Используем CORS прокси для обхода блокировок
-                const proxyUrls = [
-                    'https://corsproxy.io/?',
-                    'https://api.allorigins.win/raw?url=',
-                    'https://cors-anywhere.herokuapp.com/'
-                ];
-
-                let success = false;
-                
-                for (const proxy of proxyUrls) {
-                    try {
-                        log(`🔄 Пробую прокси: ${proxy}`, 'info');
-                        const proxyUrl = proxy + encodeURIComponent(url);
-                        
-                        const response = await fetch(proxyUrl);
-                        
-                        if (response.ok) {
-                            log('✅ Прокси работает! Загружаю файл...', 'success');
-                            updateProgress(30);
-                            
-                            const blob = await response.blob();
-                            updateProgress(70);
-                            
-                            // Создаем ссылку для скачивания
-                            const downloadUrl = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = downloadUrl;
-                            a.download = getFilenameFromUrl(url) || 'download.file';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(downloadUrl);
-                            
-                            log(`💾 Файл сохранен: ${a.download}`, 'success');
-                            updateProgress(100);
-                            success = true;
-                            break;
-                        }
-                    } catch (error) {
-                        log(`❌ Прокси не сработал: ${error.message}`, 'error');
-                        continue;
-                    }
+        function loadSceneFromJson(json) {
+            const loader = new THREE.ObjectLoader();
+            loader.parse(JSON.parse(json), (obj) => {
+                while (scene.children.length > 0) {
+                    scene.remove(scene.children[0]);
                 }
-                
-                if (!success) {
-                    log('💥 Все прокси не сработали. Попробуйте другой URL.', 'error');
-                    updateProgress(0);
+                scene.add(obj);
+                scene.add(gridHelper);
+                scene.add(axesHelper);
+                scene.add(hemisphereLight);
+                updateOutliner();
+                updateStatus();
+            });
+        }
+
+        // Outliner
+        function updateOutliner() {
+            const list = document.getElementById('objectList');
+            list.innerHTML = '';
+            scene.traverse((child) => {
+                if (child.isMesh || child.isLight) {
+                    const li = document.createElement('li');
+                    li.textContent = child.name || child.type;
+                    li.addEventListener('click', () => {
+                        selectedObject = child;
+                        transformControls.attach(child);
+                        updateGUI();
+                    });
+                    list.appendChild(li);
                 }
-                
-            } catch (error) {
-                log(`💥 Ошибка: ${error.message}`, 'error');
-                updateProgress(0);
+            });
+        }
+
+        // Statusbar
+        function updateStatus() {
+            const objectCount = scene.children.length;
+            // Простой FPS расчёт (для точности используйте three.js stats, но для простоты)
+            document.getElementById('status').textContent = `Объектов: ${objectCount} | Версия: 1.0 | FPS: 60`; // Замените на реальный FPS если добавите Stats.js
+        }
+
+        function onMouseClick(event) {
+            if (transformControls.dragging) return;
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+
+            if (intersects.length > 0) {
+                selectedObject = intersects[0].object;
+                transformControls.attach(selectedObject);
+                updateGUI();
+            } else {
+                selectedObject = null;
+                transformControls.detach();
+                gui.destroy();
+                gui = new dat.GUI();
             }
         }
 
-        function getFilenameFromUrl(url) {
-            try {
-                const urlObj = new URL(url);
-                const pathname = urlObj.pathname;
-                return pathname.split('/').pop() || null;
-            } catch {
-                return null;
-            }
-        }
+        window.addEventListener('click', onMouseClick);
 
-        // Авто-тест при загрузке
-        window.onload = function() {
-            log('🚀 Загрузчик активирован!', 'success');
-            log('💡 Введите URL файла и нажмите "Скачать файл"', 'info');
-            
-            // Тестовые URL для быстрой проверки
-            document.getElementById('urlInput').value = 'https://httpbin.org/bytes/102400'; // 100KB тестовый файл
-        };
-
-        // Обработка Enter в поле ввода
-        document.getElementById('urlInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                startDownload();
+        window.addEventListener('keydown', (event) => {
+            switch (event.keyCode) {
+                case 87: // W - translate
+                    transformControls.setMode('translate');
+                    break;
+                case 69: // E - rotate
+                    transformControls.setMode('rotate');
+                    break;
+                case 82: // R - scale
+                    transformControls.setMode('scale');
+                    break;
             }
         });
-    </script>
-</body>
-</html>
+
+        function updateGUI() {
+            gui.destroy();
+            gui = new dat.GUI();
+
+            if (selectedObject) {
+                const positionFolder = gui.addFolder
